@@ -9,18 +9,14 @@ import IPython.display as ipd
 import matplotlib.pyplot as plt 
 
 
-class Main:
-    def __init__(self, audio_path: str = '../Black_Room_Bb_81.wav'):
+class AudioAnalysis:
+    def __init__(self, audio_path: str = None):
         self.audio_path = audio_path
         
-    def y_sr_print(self):
+    def y_sr(self):
         y, sr = librosa.load(self.audio_path)
+        return sr, len(y)/sr
         
-        print(y)
-        print(len(y))
-        print('Sampling rate (Hz): %d' %sr)
-        print('Audio length (seconds): %.2f' % (len(y) / sr)) #음악의 길이(초) = 음파의 길이/Sampling rate
-    
     def play_music(self):
         y, sr = librosa.load(self.audio_path)
         return ipd.Audio(y=y, rate=sr)
@@ -84,7 +80,3 @@ class Main:
         plt.plot(y_perc, color='r')
         plt.savefig('result/harmonic_and_percussive_components.jpg')
         return plt.close()
-    
-    
-m = Main()
-m.harmonic_and_percussive_components()
