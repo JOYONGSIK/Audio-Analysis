@@ -1,13 +1,14 @@
 import os
-from turtle import color 
-import numpy as np 
-
+import sklearn
 import librosa 
 import librosa.display
-
 import IPython.display as ipd
+
+import numpy as np 
 import matplotlib.pyplot as plt 
 
+def normalize(x, axis=0):
+    return sklearn.preprocessing.minmax_scale(x, axis=axis)
 
 class AudioAnalysis:
     def __init__(self, audio_path: str = None):
@@ -79,4 +80,47 @@ class AudioAnalysis:
         plt.plot(y_harm, color='b')
         plt.plot(y_perc, color='r')
         plt.savefig('result/harmonic_and_percussive_components.jpg')
+        return plt.close()
+    
+    def spectral_centroid_graph(self):
+        y, sr = librosa.load(self.audio_path)
+        spectral_centroids = librosa.feature.spectral_centroid(y, sr=sr)[0]
+        frames = range(len(spectral_centroids))
+        t = librosa.frames_to_time(frames=frames)
+        
+        plt.figure(figsize=(16, 6))
+        librosa.display.waveshow(y, sr=sr, alpha=0.5, color='b')
+        plt.plot(t, normalize(spectral_centroids), color='r')
+        plt.savefig('result/spectral_centroid_graph.jpg')
+        return plt.close()
+        
+    def spectral_rolloff_graph(self):
+        y, sr = librosa.load(self.audio_path)
+        spectral_rolloff = librosa.feature.spectral_rolloff(y, sr=sr)[0]
+        frames = range(len(spectral_rolloff))
+        t = librosa.frames_to_time(frames=frames)
+        
+        plt.figure(figsize=(16, 6))
+        librosa.display.waveshow(y, sr=sr, alpha=0.5, color='b')
+        plt.plot(t, normalize(spectral_rolloff), color='r')
+        plt.savefig('result/spectral_rolloff_graph.jpg')
+        return plt.close()
+    
+    def mel_frequency_cepstral_coefficients_graph(self):
+        y, sr = librosa.load(self.audio_path)
+        mfccs = librosa.feature.mfcc(y, sr=sr)
+        mfccs = normalize(mfccs, axis=1)
+        
+        plt.figure(figsize=(16, 6))
+        librosa.display.specshow(mfccs, x_axis='time')
+        plt.savefig('result/mel_frequency_cepstral_coefficients_graph.jpg')
+        return plt.close()
+    
+    def chroma_frequencies_grapy(self, hop_length=512):
+        y, sr = librosa.load(self.audio_path)
+        chromagram = librosa.feature.chroma_stft(y, sr=sr, hop_length=hop_length)
+        
+        plt.figure(figsize=(16,6))
+        librosa.display.specshow(chromagram, x_axis='time', y_axis='chroma', hop_length=hop_length)
+        plt.savefig('result/chroma_frequencies_graph.jpg')
         return plt.close()
